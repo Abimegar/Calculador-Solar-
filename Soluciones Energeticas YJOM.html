@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soluciones Energéticas Olivas | Calculadora Fotovoltaica</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #f39c12;
+            --dark: #1a252f;
+            --light: #ecf0f1;
+            --savings: #27ae60;
+            --consumption: #e74c3c;
+            --generation: #3498db;
+            --cost-with-panels: #9b59b6;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        body {
+            background-color: #f9f9f9;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1.5rem 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        
+        .logo-icon {
+            color: var(--accent);
+            font-size: 2rem;
+        }
+        
+        .hero {
+            background: url('https://images.unsplash.com/photo-1509391366360-2e959784a276?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') no-repeat center center;
+            background-size: cover;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+        
+        .hero::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            padding: 2rem;
+        }
+        
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .calculator-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+        
+        @media (max-width: 768px) {
+            .calculator-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .calculator-form {
+            background-color: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        }
+        
+        .results-panel {
+            background-color: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            position: sticky;
+            top: 2rem;
+        }
+        
+        h2 {
+            color: var(--dark);
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        
+        h3 {
+            color: var(--secondary);
+            margin: 1.5rem 0 1rem;
+            font-size: 1.3rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(44, 62, 80, 0.2);
+        }
+        
+        .consumption-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        @media (max-width: 600px) {
+            .consumption-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        .consumption-input {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .consumption-input label {
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+        }
+        
+        .consumption-input input {
+            padding: 0.6rem;
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 1rem;
+        }
+        
+        button:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background-color: var(--accent);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #e67e22;
+        }
+        
+        .result-card {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .result-title {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .result-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+        
+        .result-description {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .savings {
+            color: var(--savings);
+            font-weight: 600;
+        }
+        
+        .cost {
+            color: var(--consumption);
+            font-weight: 600;
+        }
+        
+        .cost-with-panels {
+            color: var(--cost-with-panels);
+            font-weight: 600;
+        }
+        
+        .comparison-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 1.5rem;
+        }
+        
+        .tab {
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            margin-top: 3rem;
+        }
+        
+        .footer p {
+            margin-bottom: 0.5rem;
+        }
+        
+        .currency-toggle {
+            display: flex;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+        
+        .currency-btn {
+            padding: 0.5rem 1rem;
+            background-color: #eee;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .currency-btn:first-child {
+            border-radius: 8px 0 0 8px;
+        }
+        
+        .currency-btn:last-child {
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .currency-btn.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .panel-recommendation {
+            background-color: #e8f4fc;
+            border-left: 4px solid var(--secondary);
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .panel-recommendation h4 {
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .system-details {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .chart-container {
+            width: 100%;
+            margin: 2rem 0;
+        }
+        
+        .chart-wrapper {
+            width: 100%;
+            height: 400px;
+            position: relative;
+        }
+        
+        .chart-title {
+            text-align: center;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .chart-subtitle {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 3px;
+        }
+        
+        .legend-color.consumption {
+            background-color: var(--consumption);
+        }
+        
+        .legend-color.generation {
+            background-color: var(--generation);
+        }
+        
+        .legend-color.savings {
+            background-color: var(--savings);
+        }
+        
+        .info-image {
+            width: 60%;
+            border-radius: 8px;
+            margin: 1rem auto;
+            display: block;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .benefit-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .benefit-icon {
+            font-size: 2.5rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+        
+        .benefit-card h3 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .benefit-card p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .tariff-info {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 0.3rem;
+            font-style: italic;
+        }
+        
+        @media (max-width: 768px) {
+            .chart-wrapper {
+                height: 300px;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .info-image {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <span class="logo-icon">⚡</span>
+                <span>Soluciones Energéticas Olivas</span>
+            </div>
+        </div>
+    </header>
+    
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Calcula tu ahorro con energía solar</h1>
+            <p>Descubre cuánto puedes ahorrar instalando paneles solares en tu hogar o negocio</p>
+        </div>
+    </section>
+    
+    <main class="container">
+        <h2>Calculadora Solar Personalizada</h2>
+        <p>Ingresa tu consumo mensual para calcular el sistema solar ideal para tu hogar o negocio.</p>
+        
+        <div class="benefits-grid">
+            <div class="benefit-card">
+                <div class="benefit-icon">💰</div>
+                <h3>Ahorro Garantizado</h3>
+                <p>Reduce tu factura eléctrica hasta en un 95% desde el primer mes</p>
+            </div>
+            <div class="benefit-card">
+                <div class="benefit-icon">🌱</div>
+                <h3>Energía Limpia</h3>
+                <p>Contribuye al medio ambiente con energía 100% renovable</p>
+            </div>
+            <div class="benefit-card">
+                <div class="benefit-icon">🏠</div>
+                <h3>Valor a tu Propiedad</h3>
+                <p>Aumenta el valor de tu casa o negocio con paneles solares</p>
+            </div>
+            <div class="benefit-card">
+                <div class="benefit-icon">🔋</div>
+                <h3>Independencia Energética</h3>
+                <p>Protege tu negocio de aumentos en las tarifas eléctricas</p>
+            </div>
+        </div>
+        
+        <img src="https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Paneles solares" class="info-image">
+        
+        <div class="calculator-container">
+            <div class="calculator-form">
+                <div class="form-group">
+                    <label for="state">Estado:</label>
+                    <select id="state">
+                        <option value="">Selecciona un estado</option>
+                        <option value="aguascalientes">Aguascalientes</option>
+                        <option value="baja-california">Baja California</option>
+                        <option value="baja-california-sur">Baja California Sur</option>
+                        <option value="campeche">Campeche</option>
+                        <option value="chiapas">Chiapas</option>
+                        <option value="chihuahua">Chihuahua</option>
+                        <option value="cdmx">Ciudad de México</option>
+                        <option value="coahuila">Coahuila</option>
+                        <option value="colima">Colima</option>
+                        <option value="durango">Durango</option>
+                        <option value="guanajuato">Guanajuato</option>
+                        <option value="guerrero">Guerrero</option>
+                        <option value="hidalgo">Hidalgo</option>
+                        <option value="jalisco">Jalisco</option>
+                        <option value="mexico">Estado de México</option>
+                        <option value="michoacan">Michoacán</option>
+                        <option value="morelos">Morelos</option>
+                        <option value="nayarit">Nayarit</option>
+                        <option value="nuevo-leon">Nuevo León</option>
+                        <option value="oaxaca">Oaxaca</option>
+                        <option value="puebla">Puebla</option>
+                        <option value="queretaro">Querétaro</option>
+                        <option value="quintana-roo">Quintana Roo</option>
+                        <option value="san-luis-potosi">San Luis Potosí</option>
+                        <option value="sinaloa" selected>Sinaloa</option>
+                        <option value="sonora">Sonora</option>
+                        <option value="tabasco">Tabasco</option>
+                        <option value="tamaulipas">Tamaulipas</option>
+                        <option value="tlaxcala">Tlaxcala</option>
+                        <option value="veracruz">Veracruz</option>
+                        <option value="yucatan">Yucatán</option>
+                        <option value="zacatecas">Zacatecas</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="municipality">Municipio:</label>
+                    <select id="municipality">
+                        <option value="">Primero selecciona un estado</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="tariff">Tarifa CFE:</label>
+                    <select id="tariff">
+                        <option value="1">1 - Doméstica de bajo consumo</option>
+                        <option value="1A">1A - Doméstica</option>
+                        <option value="1B">1B - Doméstica</option>
+                        <option value="1C">1C - Doméstica</option>
+                        <option value="1D">1D - Doméstica</option>
+                        <option value="1E">1E - Doméstica</option>
+                        <option value="1F">1F - Doméstica</option>
+                        <option value="DAC">DAC - Demanda alta</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="billing-period">Periodicidad de facturación:</label>
+                    <select id="billing-period">
+                        <option value="monthly">Mensual</option>
+                        <option value="bimonthly">Bimestral</option>
+                    </select>
+                </div>
+                
+                <h3>Consumo de energía (kWh)</h3>
+                <div id="consumption-inputs-container">
+                    <!-- Los inputs se generarán dinámicamente aquí -->
+                </div>
+                
+                <button id="calculate-btn">Calcular Sistema Solar</button>
+            </div>
+            
+            <div class="results-panel">
+                <div class="tabs">
+                    <div class="tab active" data-tab="results">Resultados</div>
+                    <div class="tab" data-tab="comparison">Comparación</div>
+                    <div class="tab" data-tab="recommendation">Recomendación</div>
+                </div>
+                
+                <div class="tab-content active" id="results-tab">
+                    <div class="currency-toggle">
+                        <button class="currency-btn active" data-currency="mxn">MXN $</button>
+                        <button class="currency-btn" data-currency="usd">USD $</button>
+                    </div>
+                    
+                    <div class="result-card">
+                        <div class="result-title">Consumo anual</div>
+                        <div class="result-value" id="annual-consumption">0 kWh</div>
+                        <div class="result-description">Total de energía consumida en el año</div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <div class="result-title">Generación solar anual</div>
+                        <div class="result-value" id="solar-generation">0 kWh</div>
+                        <div class="result-description">Energía que producirá tu sistema solar</div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <div class="result-title">Costo anual sin paneles</div>
+                        <div class="result-value cost" id="cost-without">$0</div>
+                        <div class="result-description">Lo que pagarías a CFE sin paneles</div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <div class="result-title">Ahorro anual estimado</div>
+                        <div class="result-value savings" id="annual-savings">$0</div>
+                        <div class="result-description">Tu potencial ahorro con paneles solares</div>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="comparison-tab">
+                    <div class="chart-container">
+                        <div class="chart-title">Comparación de Consumo vs Generación</div>
+                        <div class="chart-subtitle">Tu consumo energético vs la generación de tu sistema solar propuesto</div>
+                        <div class="chart-wrapper">
+                            <canvas id="consumptionChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <div class="chart-title">Ahorro Mensual Estimado</div>
+                        <div class="chart-subtitle">Cuánto podrías ahorrar cada mes con paneles solares</div>
+                        <div class="chart-wrapper">
+                            <canvas id="savingsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="recommendation-tab">
+                    <div class="panel-recommendation">
+                        <h4>Recomendación de sistema solar</h4>
+                        <p id="panel-recommendation-text">Ingresa tu consumo para obtener una recomendación personalizada.</p>
+                        <p id="panel-count">Paneles recomendados: 0</p>
+                        <p id="system-size">Tamaño del sistema: 0 kW</p>
+                        <p id="space-required">Espacio requerido: 0 m²</p>
+                        <p id="system-cost">Costo estimado del sistema: $0</p>
+                        <p id="payback-period">Periodo de recuperación: 0 años</p>
+                    </div>
+                    
+                    <div class="system-details">
+                        <h4>Cálculo del sistema</h4>
+                        <p id="calculation-method">Método: Basado en tu consumo anual y ubicación geográfica</p>
+                        <p id="calculated-power">Potencia calculada: 0 kW</p>
+                    </div>
+                    
+                    <div class="result-card">
+                        <div class="result-title">Producción diaria estimada</div>
+                        <div class="result-value" id="daily-production">0 kWh/día</div>
+                        <div class="result-description">Energía que generará tu sistema en promedio</div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <div class="result-title">Cobertura solar</div>
+                        <div class="result-value" id="solar-coverage">0%</div>
+                        <div class="result-description">Porcentaje de tu consumo cubierto por energía solar</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="contact-section">
+            <h2>Contáctanos</h2>
+            <div class="contact-grid">
+                <div class="contact-card">
+                    <h3>Información de Contacto</h3>
+                    <div class="contact-info">
+                        <span class="contact-icon">📞</span>
+                        <span>Teléfono: 55 1234 5678</span>
+                    </div>
+                    <div class="contact-info">
+                        <span class="contact-icon">✉️</span>
+                        <span>Email: solucionesenergeticasolivas@gmail.com</span>
+                    </div>
+                    <div class="contact-info">
+                        <span class="contact-icon">🏢</span>
+                        <span>Dirección: Mazatlán, Sinaloa</span>
+                    </div>
+                </div>
+                <div class="contact-card">
+                    <h3>Horario de Atención</h3>
+                    <p>Lunes a Viernes: 9:00 am - 6:00 pm</p>
+                    <p>Sábados: 10:00 am - 2:00 pm</p>
+                    <p>Domingos: Cerrado</p>
+                </div>
+            </div>
+        </div>
+        
+        <img src="https://images.unsplash.com/photo-1509391366360-2e959784a276?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Instalación de paneles solares" class="info-image">
+    </main>
+    
+    <footer class="footer">
+        <div class="container">
+            <p>© 2023 Soluciones Energéticas Olivas. Todos los derechos reservados.</p>
+            <p>Calculadora basada en datos de irradiación solar de la NASA y tarifas CFE.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Datos de municipios por estado
+        const municipalitiesByState = {
+            'aguascalientes': ['Aguascalientes', 'Asientos', 'Calvillo', 'Cosío', 'Jesús María', 'Pabellón de Arteaga', 'Rincón de Romos', 'San José de Gracia', 'Tepezalá', 'El Llano', 'San Francisco de los Romo'],
+            'baja-california': ['Ensenada', 'Mexicali', 'Tecate', 'Tijuana', 'Playas de Rosarito', 'San Quintín', 'Rosarito', 'San Felipe', 'Guadalupe Victoria', 'Villa del Campo'],
+            'baja-california-sur': ['Comondú', 'La Paz', 'Loreto', 'Los Cabos', 'Mulegé', 'La Ribera', 'San José del Cabo', 'Todos Santos', 'Cabo San Lucas', 'Santa Rosalía'],
+            'campeche': ['Calakmul', 'Calkiní', 'Campeche', 'Candelaria', 'Carmen', 'Champotón', 'Hecelchakán', 'Hopelchén', 'Palizada', 'Seybaplaya', 'Tenabo', 'Escárcega'],
+            'chiapas': ['Acacoyagua', 'Acala', 'Acapetahua', 'Aldama', 'Altamirano', 'Amatán', 'Amatenango de la Frontera', 'Amatenango del Valle', 'Angel Albino Corzo', 'Arriaga', 'Bejucal de Ocampo', 'Bella Vista', 'Benemérito de las Américas', 'Berriozábal', 'Bochil', 'El Bosque', 'Cacahoatán', 'Catazajá', 'Cintalapa', 'Coapilla', 'Comitán de Domínguez', 'La Concordia', 'Copainalá', 'Chalchihuitán', 'Chamula', 'Chanal', 'Chapultenango', 'Chenalhó', 'Chiapa de Corzo', 'Chiapilla', 'Chicoasén', 'Chicomuselo', 'Chilón', 'Escuintla', 'Francisco León', 'Frontera Comalapa', 'Frontera Hidalgo', 'La Grandeza', 'Huehuetán', 'Huixtán', 'Huitiupán', 'Huixtla', 'La Independencia', 'Ixhuatán', 'Ixtacomitán', 'Ixtapa', 'Ixtapangajoya', 'Jiquipilas', 'Jitotol', 'Juárez', 'Larráinzar', 'La Libertad', 'Mapastepec', 'Las Margaritas', 'Maravilla Tenejapa', 'Marqués de Comillas', 'Mazapa de Madero', 'Mazatán', 'Metapa', 'Mitontic', 'Montecristo de Guerrero', 'Motozintla', 'Nicolás Ruíz', 'Ocosingo', 'Ocotepec', 'Ocozocoautla de Espinosa', 'Ostuacán', 'Osumacinta', 'Oxchuc', 'Palenque', 'Pantelhó', 'Pantepec', 'El Parral', 'Pichucalco', 'Pijijiapan', 'Pueblo Nuevo Solistahuacán', 'Rayón', 'Reforma', 'Las Rosas', 'Sabanilla', 'Salto de Agua', 'San Andrés Duraznal', 'San Cristóbal de las Casas', 'San Fernando', 'San Juan Cancuc', 'San Lucas', 'Santiago el Pinar', 'Siltepec', 'Simojovel', 'Sitalá', 'Socoltenango', 'Solosuchiapa', 'Soyaló', 'Suchiapa', 'Suchiate', 'Sunuapa', 'Tapachula', 'Tapalapa', 'Tapilula', 'Tecpatán', 'Tenejapa', 'Teopisca', 'Tila', 'Tonalá', 'Totolapa', 'La Trinitaria', 'Tumbalá', 'Tuxtla Gutiérrez', 'Tuxtla Chico', 'Tuzantán', 'Tzimol', 'Unión Juárez', 'Venustiano Carranza', 'Villa Comaltitlán', 'Villa Corzo', 'Villaflores', 'Yajalón', 'Zinacantán'],
+            'chihuahua': ['Ahumada', 'Aldama', 'Allende', 'Aquiles Serdán', 'Ascensión', 'Bachíniva', 'Balleza', 'Batopilas de Manuel Gómez Morín', 'Bocoyna', 'Buenaventura', 'Camargo', 'Carichí', 'Casas Grandes', 'Coronado', 'Coyame del Sotol', 'La Cruz', 'Cuauhtémoc', 'Cusihuiriachi', 'Chihuahua', 'Chínipas de Almada', 'Delicias', 'Dr. Belisario Domínguez', 'Galeana', 'Santa Isabel', 'Gómez Farías', 'Gran Morelos', 'Guachochi', 'Guadalupe', 'Guadalupe y Calvo', 'Guazapares', 'Guerrero', 'Hidalgo del Parral', 'Huejotitán', 'Ignacio Zaragoza', 'Janos', 'Jiménez', 'Juárez', 'Julimes', 'López', 'Madera', 'Maguarichi', 'Manuel Benavides', 'Matachí', 'Matamoros', 'Meoqui', 'Morelos', 'Moris', 'Namiquipa', 'Nonoava', 'Nuevo Casas Grandes', 'Ocampo', 'Ojinaga', 'Praxedis G. Guerrero', 'Riva Palacio', 'Rosales', 'Rosario', 'San Francisco de Borja', 'San Francisco de Conchos', 'San Francisco del Oro', 'Santa Bárbara', 'Satevó', 'Saucillo', 'Temósachic', 'El Tule', 'Urique', 'Uruachi', 'Valle de Zaragoza'],
+            'cdmx': ['Álvaro Obregón', 'Azcapotzalco', 'Benito Juárez', 'Coyoacán', 'Cuajimalpa de Morelos', 'Cuauhtémoc', 'Gustavo A. Madero', 'Iztacalco', 'Iztapalapa', 'La Magdalena Contreras', 'Miguel Hidalgo', 'Milpa Alta', 'Tláhuac', 'Tlalpan', 'Venustiano Carranza', 'Xochimilco'],
+            'coahuila': ['Abasolo', 'Acuña', 'Allende', 'Arteaga', 'Candela', 'Castaños', 'Cuatro Ciénegas', 'Escobedo', 'Francisco I. Madero', 'Frontera', 'General Cepeda', 'Guerrero', 'Hidalgo', 'Jiménez', 'Juárez', 'Lamadrid', 'Matamoros', 'Monclova', 'Morelos', 'Múzquiz', 'Nadadores', 'Nava', 'Ocampo', 'Parras', 'Piedras Negras', 'Progreso', 'Ramos Arizpe', 'Sabinas', 'Sacramento', 'Saltillo', 'San Buenaventura', 'San Juan de Sabinas', 'San Pedro', 'Sierra Mojada', 'Torreón', 'Viesca', 'Villa Unión', 'Zaragoza'],
+            'colima': ['Armería', 'Colima', 'Comala', 'Coquimatlán', 'Cuauhtémoc', 'Ixtlahuacán', 'Manzanillo', 'Minatitlán', 'Tecomán', 'Villa de Álvarez'],
+            'durango': ['Canatlán', 'Canelas', 'Coneto de Comonfort', 'Cuencamé', 'Durango', 'General Simón Bolívar', 'Gómez Palacio', 'Guadalupe Victoria', 'Guanaceví', 'Indé', 'Lerdo', 'Mapimí', 'Mezquital', 'Nazas', 'Nombre de Dios', 'Ocampo', 'El Oro', 'Otáez', 'Pánuco de Coronado', 'Peñón Blanco', 'Poanas', 'Pueblo Nuevo', 'Rodeo', 'San Bernardo', 'San Dimas'],
+            'guanajuato': ['Abasolo', 'Acámbaro', 'Apaseo el Alto', 'Apaseo el Grande', 'Atarjea', 'Celaya', 'Manuel Doblado', 'Comonfort', 'Coroneo', 'Cortazar', 'Cuerámaro', 'Doctor Mora', 'Dolores Hidalgo Cuna de la Independencia Nacional', 'Guanajuato', 'Huanímaro', 'Irapuato', 'Jaral del Progreso', 'Jerécuaro', 'León', 'Moroleón', 'Ocampo', 'Pénjamo', 'Pueblo Nuevo', 'Purísima del Rincón', 'Romita', 'Salamanca', 'Salvatierra', 'San Diego de la Unión', 'San Felipe', 'San Francisco del Rincón', 'San José Iturbide', 'San Luis de la Paz', 'San Miguel de Allende', 'Santa Catarina', 'Santa Cruz de Juventino Rosas', 'Santiago Maravatío', 'Silao de la Victoria', 'Tarandacuao', 'Tarimoro', 'Tierra Blanca', 'Uriangato', 'Valle de Santiago', 'Victoria', 'Villagrán', 'Xichú', 'Yuriria'],
+            'guerrero': ['Acapulco de Juárez', 'Ahuacuotzingo', 'Ajuchitlán del Progreso', 'Alcozauca de Guerrero', 'Alpoyeca', 'Apaxtla', 'Arcelia', 'Atenango del Río', 'Atlamajalcingo del Monte', 'Atlixtac', 'Atoyac de Álvarez', 'Ayutla de los Libres', 'Azoyú', 'Benito Juárez', 'Buenavista de Cuéllar', 'Coahuayutla de José María Izazaga', 'Cocula', 'Copala', 'Copalillo', 'Copanatoyac', 'Coyuca de Benítez', 'Coyuca de Catalán', 'Cuajinicuilapa', 'Cualác', 'Cuautepec', 'Cuetzala del Progreso', 'Cutzamala de Pinzón', 'Chilapa de Álvarez', 'Chilpancingo de los Bravo', 'Florencio Villarreal', 'General Canuto A. Neri', 'General Heliodoro Castillo', 'Huamuxtitlán', 'Huitzuco de los Figueroa', 'Iguala de la Independencia', 'Igualapa', 'Ixcateopan de Cuauhtémoc', 'Zihuatanejo de Azueta', 'Juan R. Escudero', 'Leonardo Bravo', 'Malinaltepec', 'Mártir de Cuilapan', 'Metlatónoc', 'Mochitlán', 'Olinalá', 'Ometepec', 'Pedro Ascencio Alquisiras', 'Petatlán', 'Pilcaya', 'Pungarabato', 'Quechultenango', 'San Luis Acatlán', 'San Marcos', 'San Miguel Totolapan', 'Taxco de Alarcón', 'Tecoanapa', 'Tecpán de Galeana', 'Teloloapan', 'Tepecoacuilco de Trujano', 'Tetipac', 'Tixtla de Guerrero', 'Tlacoachistlahuaca', 'Tlacoapa', 'Tlalchapa', 'Tlalixtaquilla de Maldonado', 'Tlapa de Comonfort', 'Tlapehuala', 'La Unión de Isidoro Montes de Oca', 'Xalpatláhuac', 'Xochihuehuetlán', 'Xochistlahuaca', 'Zapotitlán Tablas', 'Zirándaro', 'Zitlala'],
+            'hidalgo': ['Acatlán', 'Acaxochitlán', 'Actopan', 'Agua Blanca de Iturbide', 'Ajacuba', 'Alfajayucan', 'Almoloya', 'Apan', 'Atlapexco', 'Atotonilco el Grande', 'Atotonilco de Tula', 'Calnali', 'Cardonal', 'Chaparal', 'Chapulhuacán', 'Chilcuautla', 'Eloxochitlán', 'Emiliano Zapata', 'Epazoyucan', 'Francisco I. Madero', 'Huautla', 'Huazalingo', 'Huehuetla', 'Huejutla de Reyes', 'Huichapan', 'Ixmiquilpan', 'Jacala de Ledezma', 'Jaltocán', 'La Misión', 'Mixquiahuala de Juárez', 'Molango de Escamilla', 'Nicolás Flores', 'Nopala de Villagrán', 'Omitlán de Juárez', 'Pachuca de Soto', 'Pacula', 'Pisaflores', 'Progreso de Obregón', 'Mineral de la Reforma', 'San Agustín Tlaxiaca', 'San Bartolo Tutotepec', 'San Felipe Orizatlán', 'San Salvador', 'Santiago de Anaya', 'Santiago Tulantepec de Lugo Guerrero', 'Singuilucan', 'Tasquillo', 'Tecozautla', 'Tenango de Doria', 'Tepeapulco', 'Tepehuacán de Guerrero', 'Tepeji del Río de Ocampo', 'Tepetitlán', 'Tetepango', 'Tezontepec de Aldama', 'Tianguistengo', 'Tlahuelilpan', 'Tlahuiltepa', 'Tlanalapa', 'Tlanchinol', 'Tlaxcoapan', 'Tochapan', 'Tula de Allende', 'Tulancingo de Bravo', 'Villa de Tezontepec', 'Xochiatipan', 'Xochicoatlán', 'Yahualica', 'Zacualtipán de Ángeles', 'Zapotlán de Juárez', 'Zempoala', 'Zimapán'],
+            'jalisco': ['Acatic', 'Acatlán de Juárez', 'Ahualulco de Mercado', 'Amacueca', 'Amatitán', 'Ameca', 'San Juanito de Escobedo', 'Arandas', 'El Arenal', 'Atemajac de Brizuela', 'Atengo', 'Atenguillo', 'Atotonilco el Alto', 'Atoyac', 'Autlán de Navarro', 'Ayutla', 'La Barca', 'Bolaños', 'Cabo Corrientes', 'Cañadas de Obregón', 'Casimiro Castillo', 'Cihuatlán', 'Zapotlán el Grande', 'Cocula', 'Colotlán', 'Concepción de Buenos Aires', 'Cuautitlán de García Barragán', 'Cuautla', 'Cuquío', 'Chapala', 'Chimaltitán', 'Chiquilistlán', 'Degollado', 'Ejutla', 'Encarnación de Díaz', 'Etzatlán', 'El Grullo', 'Guadalajara', 'Hostotipaquillo', 'Huejúcar', 'Huejuquilla el Alto', 'Indé', 'Jalostotitlán', 'Jamay', 'Jesús María', 'Jilotlán de los Dolores', 'Jocotepec', 'Juanacatlán', 'Lagos de Moreno', 'Magdalena', 'Santa María del Oro', 'Manzanilla de la Paz', 'Mazamitla', 'Mexticacán', 'Mezquitic', 'Mixtlán', 'Ocotlán', 'Ojuelos de Jalisco', 'La Manzanilla de la Paz', 'Pihuamo', 'Poncitlán', 'Puerto Vallarta', 'Villa Purificación', 'Quitupan', 'El Salto', 'San Cristóbal de la Barranca', 'San Diego de Alejandría', 'San Juan de los Lagos', 'San Julián', 'San Marcos', 'San Martín de Bolaños', 'San Martín Hidalgo', 'San Miguel el Alto', 'San Pedro Tlaquepaque', 'San Sebastián del Oeste', 'Santa María de los Ángeles', 'Sayula', 'Tala', 'Talpa de Allende', 'Tamula', 'Tecalitlán', 'Tecolotlán', 'Tenamaxtlán', 'Teocaltiche', 'Teocuitatlán de Corona', 'Tepatitlán de Morelos', 'Tequila', 'Teuchitlán', 'Tizapan el Alto', 'Tlajomulco de Zúñiga', 'San Pedro Tlaquepaque', 'Tóltic', 'Tomatlán', 'Tonalá', 'Tonaya', 'Tonila', 'Totatiche', 'Tototlán', 'Tuxcacuesco', 'Tuxcueca', 'Tuxpan', 'Unión de San Antonio', 'Unión de Tula', 'Valle de Guadalupe', 'Valle de Juárez', 'Villa Guerrero', 'Villa Hidalgo', 'Cañadas de Obregón', 'Yahualica de González Gallo', 'Zacoalco de Torres', 'Zapopan', 'Zapotiltic', 'Zapotitlán de Vadillo', 'Zapotlán del Rey', 'Zapotlanejo', 'Zapotlán el Grande'],
+            'mexico': ['Acambay de Ruíz Castañeda', 'Acolman', 'Aculco', 'Almoloya de Alquisiras', 'Almoloya de Juárez', 'Almoloya del Río', 'Amanalco', 'Amatepec', 'Amecameca', 'Apaxco', 'Atenco', 'Atizapán', 'Atizapán de Zaragoza', 'Atlacomulco', 'Atlautla', 'Axapusco', 'Ayapango', 'Calimaya', 'Capulhuac', 'Coacalco de Berriozábal', 'Coatepec Harinas', 'Cocotitlán', 'Coyotepec', 'Cuautitlán', 'Cuautitlán Izcalli', 'Donato Guerra', 'Ecatepec de Morelos', 'Ecatzingo', 'El Oro', 'Huehuetoca', 'Hueypoxtla', 'Huixquilucan', 'Isidro Fabela', 'Ixtapaluca', 'Ixtapan de la Sal', 'Ixtapan del Oro', 'Ixtlahuaca', 'Jaltenco', 'Jilotepec', 'Jilotzingo', 'Jiquipilco', 'Jocotitlán', 'Juchitepec', 'Lerma', 'Malinalco', 'Melchor Ocampo', 'Metepec', 'Mexicaltzingo', 'Morelos', 'Naucalpan de Juárez', 'Nezahualcóyotl', 'Nextlalpan', 'Nicolás Romero', 'Nopaltepec', 'Ocoyoacac', 'Ocuilan', 'Otumba', 'Otzoloapan', 'Otzolotepec', 'Ozumba', 'Papalotla', 'La Paz', 'Polotitlán', 'Rayón', 'San Antonio la Isla', 'San Felipe del Progreso', 'San José del Rincón', 'San Martín de las Pirámides', 'San Mateo Atenco', 'San Simón de Guerrero', 'Santo Tomás', 'Soyaniquilpan de Juárez', 'Sultepec', 'Tecámac', 'Tejupilco', 'Temamatla', 'Temascalapa', 'Temascalcingo', 'Temascaltepec', 'Temoaya', 'Tenancingo', 'Tenango del Aire', 'Tenango del Valle', 'Teoloyucan', 'Teotihuacán', 'Tepetlaoxtoc', 'Tepetlixpa', 'Tepotzotlán', 'Tequixquiac', 'Texcaltitlán', 'Texcalyacac', 'Texcoco', 'Tezoyuca', 'Tianguistengo', 'Timilpan', 'Tlalmanalco', 'Tlalnepantla de Baz', 'Tlatlaya', 'Toluca', 'Tonanitla', 'Tonatico', 'Tultepec', 'Tultitlán', 'Valle de Bravo', 'Villa de Allende', 'Villa del Carbón', 'Villa Guerrero', 'Villa Victoria', 'Xalatlaco', 'Xonacatlán', 'Xicohtzingo', 'Yauhquemehcan', 'Zacazonapan', 'Zacualpan', 'Zinacantepec', 'Zumpahuacán', 'Zumpango'],
+            'michoacan': ['Acuitzio', 'Aguililla', 'Álvaro Obregón', 'Angamacutiro', 'Angangueo', 'Apatzingán', 'Aporo', 'Aquila', 'Ario', 'Arteaga', 'Briseñas', 'Buenavista', 'Carácuaro', 'Coahuayana', 'Coalcomán de Vázquez Pallares', 'Coeneo', 'Contepec', 'Copándaro', 'Cotija', 'Cuitzeo', 'Charapan', 'Charo', 'Chavinda', 'Cherán', 'Chilchota', 'Chinicuila', 'Chucándiro', 'Churintzio', 'Churumuco', 'Ecuandureo', 'Epitacio Huerta', 'Erongarícuaro', 'Gabriel Zamora', 'Hidalgo', 'La Huacana', 'Huandacareo', 'Huaniqueo', 'Huetamo', 'Huiramba', 'Indaparapeo', 'Irimbo', 'Jacona', 'Jiménez', 'Jiquilpan', 'Juárez', 'Jungapeo', 'Lagunillas', 'Madero', 'Maravatío', 'Marcos Castellanos', 'Lázaro Cárdenas', 'Morelia', 'Morelos', 'Múgica', 'Nahuatzen', 'Nocupétaro', 'Nuevo Parangaricutiro', 'Nuevo Urecho', 'Numarán', 'Ocampo', 'Pajacuarán', 'Panindícuaro', 'Paracho', 'Parácuaro', 'Pátzcuaro', 'Penjamillo', 'Peribán', 'La Piedad', 'Purépero', 'Puruándiro', 'Queréndaro', 'Quiroga', 'Sahuayo', 'San Lucas', 'Santa Ana Maya', 'Salvador Escalante', 'Senguio', 'Susupuato', 'Tacámbaro', 'Tancítaro', 'Tangamandapio', 'Tangancícuaro', 'Tanhuato', 'Taretan', 'Tingambato', 'Tingüindín', 'Tiquicheo de Nicolás Romero', 'Tlalpujahua', 'Tlazazalca', 'Tocumbo', 'Tzintzuntzan', 'Tzitzio', 'Uruapan', 'Villamar', 'Villanueva', 'Vista Hermosa', 'Yurécuaro', 'Zacapu', 'Zamora', 'Zináparo', 'Zinapécuaro', 'Ziracuaretiro', 'Zitácuaro'],
+            'morelos': ['Amacuzac', 'Atlatlahucan', 'Axochiapan', 'Ayala', 'Coatlán del Río', 'Cuautla', 'Cuernavaca', 'Emiliano Zapata', 'Huitzilac', 'Jantetelco', 'Jojutla', 'Jonacatepec', 'Mazatepec', 'Miacatlán', 'Ocuituco', 'Puente de Ixtla', 'Temixco', 'Tepoztlán', 'Tetecala', 'Tetela del Volcán', 'Tlalnepantla', 'Tlaltizapán', 'Tlaquiltenango', 'Tlayacapan', 'Totolapan', 'Xochitepec', 'Yautepec', 'Yecapixtla', 'Zacatepec', 'Zacualpan de Amilpas'],
+            'nayarit': ['Acaponeta', 'Ahuacatlán', 'Amatlán de Cañas', 'Compostela', 'Huajicori', 'Ixtlán del Río', 'Jala', 'Xalisco', 'El Nayar', 'Rosamorada', 'Ruíz', 'San Blas', 'San Pedro Lagunillas', 'Santa María del Oro', 'Santiago Ixcuintla', 'Tecuala', 'Tepic', 'Tuxpan', 'La Yesca'],
+            'nuevo-leon': ['Abasolo', 'Agualeguas', 'Allende', 'Anáhuac', 'Apodaca', 'Aramberri', 'Bustamante', 'Cadereyta Jiménez', 'El Carmen', 'Cerralvo', 'China', 'Ciénega de Flores', 'Doctor Arroyo', 'Doctor Coss', 'Doctor González', 'Galeana', 'García', 'San Pedro Garza García', 'General Bravo', 'General Escobedo', 'General Terán', 'General Treviño', 'General Zaragoza', 'General Zuazua', 'Guadalupe', 'Los Herreras', 'Higueras', 'Hualahuises', 'Iturbide', 'Juárez', 'Lampazos de Naranjo', 'Linares', 'Marín', 'Mier y Noriega', 'Mina', 'Montemorelos', 'Monterrey', 'Parás', 'Pesquería', 'Los Ramones', 'Rayones', 'Sabinas Hidalgo', 'Salinas Victoria', 'San Nicolás de los Garza', 'Santa Catarina', 'Santiago', 'Vallecillo', 'Villaldama'],
+            'oaxaca': ['Abejones', 'Acatlán de Pérez Figueroa', 'Asunción Cacalotepec', 'Asunción Cuyotepeji', 'Asunción Ixtaltepec', 'Asunción Ocotlán', 'Asunción Tlacolulita', 'Ayotzintepec', 'Ayutla de los Libres', 'Calihualá', 'Candelaria Loxicha', 'Ciénega de Zimatlán', 'Ciudad Ixtepec', 'Coatecas Altas', 'Coicoyán de las Flores', 'La Compañía', 'Concepción Buenavista', 'Concepción Pápalo', 'Constancia del Rosario', 'Cosolapa', 'Cuilápam de Guerrero', 'Cuyamecalco Villa de Zaragoza', 'Chahuites', 'Chalcatongo de Hidalgo', 'Chiquihuitlán de Benito Juárez', 'Heroica Ciudad de Ejutla de Crespo', 'Eloxochitlán de Flores Magón', 'El Espinal', 'Ferrería', 'Fresnillo de Trujano', 'Guadalupe Etla', 'Guelatao de Juárez', 'Guzmán', 'Heroica Ciudad de Huajuapan de León', 'Huautepec', 'Huautla de Jiménez', 'Ixpantepec Nieves', 'Ixtlán de Juárez', 'Juchitán de Zaragoza', 'La Matamoros', 'Loma Bonita', 'Magdalena Apasco', 'Magdalena Jaltepec', 'Magdalena Mixtepec', 'Magdalena Ocotlán', 'Magdalena Peñasco', 'Magdalena Teitipac', 'Magdalena Tlacotepec', 'Magdalena Zahuatlán', 'Mariscala de Juárez', 'Mártires de Tacubaya', 'Mazatlán Villa de Flores', 'Miahuatlán de Porfirio Díaz', 'Mixistlán de la Reforma', 'Monjas', 'Natividad', 'Nazareno Etla', 'Nejapa de Madero', 'Ixtlán de Juárez', 'Oaxaca de Juárez', 'Ocotlán de Morelos', 'Pinotepa Nacional', 'Pluma Hidalgo', 'Putla Villa de Guerrero', 'San Andrés Huaxpaltepec', 'San Andrés Paxtlán', 'San Andrés Sinaxtla', 'San Andrés Solaga', 'San Andrés Teotilálpam', 'San Andrés Tepetlapa', 'San Andrés Yaá', 'San Bartolo Coyotepec', 'San Bartolo Yautepec', 'San Bartolomé Ayautla', 'San Bartolomé Loxicha', 'San Bartolomé Quialana', 'San Bartolomé Yucuañe', 'San Bernardo Mixtepec', 'San Blas Atempa', 'San Carlos Yautepec', 'San Cristóbal Amatlán', 'San Cristóbal Lachirioag', 'San Cristóbal Suchixtlahuaca', 'San Dionisio del Mar', 'San Dionisio Ocotepec', 'San Esteban Atatlahuca', 'San Felipe Jalapa de Díaz', 'San Felipe Tejalapam', 'San Francisco Cahuacúa', 'San Francisco Cajonos', 'San Francisco Chapulapa', 'San Francisco Chindúa', 'San Francisco del Mar', 'San Francisco Huehuetlán', 'San Francisco Ixhuatán', 'San Francisco Nuxaño', 'San Francisco Ozolotepec', 'San Francisco Sola', 'San Francisco Tlapacingo', 'San Gabriel Mixtepec', 'San Ildefonso Amatlán', 'San Ildefonso Sola', 'San Ildefonso Villa Alta', 'San Jacinto Amilpas', 'San Jacinto Tlacotepec', 'San Jerónimo Coatlán', 'San Jerónimo Silacayoapilla', 'San Jerónimo Taviche', 'San Jerónimo Tlacochahuaya', 'San Jorge Nuchita', 'San José Ayuquila', 'San José Chiltepec', 'San José del Peñasco', 'San José Estancia Grande', 'San José Independencia', 'San José Lachiguiri', 'San José Tenango', 'San Juan Achiutla', 'San Juan Atepec', 'San Juan Bautista Coixtlahuaca', 'San Juan Bautista Cuicatlán', 'San Juan Bautista Guelache', 'San Juan Bautista Jayacatlán', 'San Juan Bautista Lo de Soto', 'San Juan Bautista Tlacoatzintepec', 'San Juan Bautista Tuxtepec', 'San Juan Cacahuatepec', 'San Juan Chicomezúchil', 'San Juan Chilateca', 'San Juan Cieneguilla', 'San Juan Coatzospam', 'San Juan Colorado', 'San Juan Comaltepec', 'San Juan Cotzocón', 'San Juan del Estado', 'San Juan del Río', 'San Juan Diuxi', 'San Juan Evangelista Analco', 'San Juan Guelavía', 'San Juan Guichicovi', 'San Juan Ihualtepec', 'San Juan Juquila Mixes', 'San Juan Lalana', 'San Juan de los Cués', 'San Juan Mazatlán', 'San Juan Mixtepec', 'San Juan Ñumí', 'San Juan Ozolotepec', 'San Juan Petlapa', 'San Juan Quiahije', 'San Juan Tamazola', 'San Juan Teita', 'San Juan Tepeuxila', 'San Juan Tepanapa', 'San Juan Yaeé', 'San Juan Yatzona', 'San Juan Yucuita', 'San Juan Cancuc', 'San Juan Tepehuacán', 'San Lorenzo', 'San Lorenzo Cacaotepec', 'San Lorenzo Texmelucan', 'San Lorenzo Victoria', 'San Lucas Camotlán', 'San Lucas Ojitlán', 'San Lucas Quiaviní', 'San Lucas Zoquiápam', 'San Luis Amatlán', 'San Marcial Ozolotepec', 'San Marcos Arteaga', 'San Martín de los Cansecos', 'San Martín Huamelúlpam', 'San Martín Itunyoso', 'San Martín Lachilá', 'San Martín Peras', 'San Martín Tilcajete', 'San Mateo Cajonos', 'San Mateo del Mar', 'San Mateo Etlatongo', 'San Mateo Nejápam', 'San Mateo Peñasco', 'San Mateo Río Hondo', 'San Mateo Sindihui', 'San Mateo Tlapiltepec', 'San Mateo Yoloxochitl', 'San Melchor Betaza', 'San Miguel Achiutla', 'San Miguel Ahuehuetitlán', 'San Miguel Aloapam', 'San Miguel Amatlán', 'San Miguel Coatlán', 'San Miguel Chicahua', 'San Miguel Chimalapa', 'San Miguel del Puerto', 'San Miguel del Río', 'San Miguel Ejutla', 'San Miguel el Grande', 'San Miguel Huautla', 'San Miguel Mixtepec', 'San Miguel Peras', 'San Miguel Piedras', 'San Miguel Quetzaltepec', 'San Miguel Santa Flor', 'San Miguel Soyaltepec', 'San Miguel Tequixtepec', 'San Miguel Tilquiapam', 'San Miguel Tlacotepec', 'San Miguel Tulancingo', 'San Miguel Yotao', 'San Nicolás Hidalgo', 'San Nicolás', 'San Pedro Amuzgos', 'San Pedro Apostol', 'San Pedro Comitancillo', 'San Pedro el Alto', 'San Pedro Huamelula', 'San Pedro Ixtlahuaca', 'San Pedro Jicayán', 'San Pedro Mártir', 'San Pedro Mártir Quiechapa', 'San Pedro Mártir Yucuxaco', 'San Pedro Mixtepec Distrito 22', 'San Pedro Mixtepec Distrito 26', 'San Pedro Ocotepec', 'San Pedro Quiatoni', 'San Pedro Pochutla', 'San Pedro Tapanatepec', 'San Pedro Taviche', 'San Pedro Teozacoalco', 'San Pedro Teutila', 'San Pedro Tidaá', 'San Pedro Topiltepec', 'San Pedro Totolapam', 'San Pedro Yucunama', 'San Raymundo Jalpan', 'San Sebastián Abasolo', 'San Sebastián Coatlán', 'San Sebastián Ixcapa', 'San Sebastián Teitipac', 'San Sebastián Tutla', 'San Vicente Coatlán', 'San Vicente Lachixío', 'San Vicente Nuñú', 'Santa Ana Ateixtlahuaca', 'Santa Ana Cuauhtémoc', 'Santa Ana del Valle', 'Santa Ana Tlapacoyan', 'Santa Ana Yareni', 'Santa Ana Zegache', 'Santa Catalina Quieri', 'Santa Catarina Ixtepeji', 'Santa Catarina Minas', 'Santa Catarina Tayata', 'Santa Catarina Ticuá', 'Santa Catarina Zapoquila', 'Santa Cruz Acatepec', 'Santa Cruz de Bravo', 'Santa Cruz Itundujia', 'Santa Cruz Mixtepec', 'Santa Cruz Nundaco', 'Santa Cruz Papalutla', 'Santa Cruz Tayata', 'Santa Cruz Xitla', 'Santa Cruz Xoxocotlán', 'Santa Cruz Zenzontepec', 'Santa Gertrudis', 'Santa Inés del Monte', 'Santa Inés Yatzeche', 'Santa Lucía del Camino', 'Santa Lucía Monteverde', 'Santa Lucía Miahuatlán', 'Santa María Alotepec', 'Santa María Apazco', 'Santa María la Asunción', 'Santa María Atzompa', 'Santa María Camotlán', 'Santa María Colotepec', 'Santa María Cortijo', 'Santa María Coyotepec', 'Santa María Chimalapa', 'Santa María del Rosario', 'Santa María del Tule', 'Santa María Ecatepec', 'Santa María Guelacé', 'Santa María Huatulco', 'Santa María Huazolotitlán', 'Santa María Ipalapa', 'Santa María Ixcatlán', 'Santa María Jacatepec', 'Santa María Jalapa del Marqués', 'Santa María Jaltianguis', 'Santa María Lachixío', 'Santa María Mixtequilla', 'Santa María Nativitas', 'Santa María Nduayaco', 'Santa María Ozolotepec', 'Santa María Pápalo', 'Santa María Petapa', 'Santa María Quiegolani', 'Santa María Sola', 'Santa María Tataltepec', 'Santa María Tecomavaca', 'Santa María Temaxcalapa', 'Santa María Temaxcaltepec', 'Santa María Tlahuitoltepec', 'Santa María Tlalixtac', 'Santa María Tonameca', 'Santa María Totolapilla', 'Santa María Yalina', 'Santa María Yavesía', 'Santa María Yolotepec', 'Santa María Yuquiti', 'Santa María Zaniza', 'Santa María Zoquitlán', 'Santiago Amoltepec', 'Santiago Apoala', 'Santiago del Río', 'Santiago Ixtayutla', 'Santiago Jamiltepec', 'Santiago Jocotepec', 'Santiago Juxtlahuaca', 'Santiago Lalopa', 'Santiago Laollaga', 'Santiago Laxopa', 'Santiago Llano Grande', 'Santiago Matatlán', 'Santiago Minas', 'Santiago Nundiche', 'Santiago Pinotepec', 'Santiago Suchilquitongo', 'Santiago Tamazola', 'Santiago Tapextla', 'Santiago Textitlán', 'Santiago Tilapa', 'Santiago Tillo', 'Santiago Tlazoyaltepec', 'Santiago Xanica', 'Santiago Yaveo', 'Santiago Yolomécatl', 'Santiago Zacatepec', 'Santiago Zoochila', 'Santo Domingo Armenta', 'Santo Domingo Chihuitán', 'Santo Domingo de Morelos', 'Santo Domingo Ixcatlán', 'Santo Domingo Nuxaá', 'Santo Domingo Tehuantepec', 'Santo Domingo Tlatayapam', 'Santo Domingo Tomaltepec', 'Santo Domingo Tonalá', 'Santo Domingo Tonaltepec', 'Santo Domingo Xagacía', 'Santo Domingo Yanhuitlán', 'Santo Domingo Zanatepec', 'Santos Reyes Nopala', 'Sianí', 'Silacayoapam', 'Sitio de Xitla', 'Soledad Etla', 'Taleá de Castro', 'Tamazulapam del Espíritu Santo', 'Tanetze de Zaragoza', 'Teotitlán de Flores Magón', 'Teotitlán del Valle', 'Tezoatlán de Segura y Luna', 'Tlacolula de Matamoros', 'Tlacotepec Plumas', 'Tlalixtac de Cabrera', 'Totontepec Villa de Morelos', 'Trinidad Zaachila', 'Unión Hidalgo', 'Valerio Trujano', 'Villa de Etla', 'Villa de Tututepec', 'Villa Sola de Vega', 'Villa Talea de Castro', 'Villa Tejúpam de la Unión', 'Yaxe', 'Zaachila', 'Zapotitlán Lagunas', 'Zapotitlán Palmas', 'Zimatlán de Álvarez'],
+            'puebla': ['Acajete', 'Acateno', 'Acatlán', 'Acatzingo', 'Acteopan', 'Ahuacatlán', 'Ahuatlán', 'Ahuazotepec', 'Ahuehuetitla', 'Ajalpan', 'Albino Zertuche', 'Aljojuca', 'Altepexi', 'Amixtlán', 'Amozoc', 'Aquixtla', 'Atempan', 'Atexcal', 'Atlixco', 'Atoyatempan', 'Atzala', 'Atzitzihuacán', 'Atzitzintla', 'Axutla', 'Ayotoxco de Guerrero', 'Calpan', 'Caltepec', 'Camocuautla', 'Cañada Morelos', 'Capital de Serdán', 'Caxhuacán', 'Chalchicomula de Sesma', 'Chapulco', 'Chiautla', 'Chiautzingo', 'Chichiquila', 'Chietla', 'Chignahuapan', 'Chignautla', 'Chila', 'Chila de la Sal', 'Honey', 'Chilchotla', 'Chinantla', 'Coatepec', 'Coatzingo', 'Cohetzala', 'Cohuecan', 'Coronango', 'Coxcatlán', 'Coyoaco', 'Cuapiaxtla de Madero', 'Cuautempan', 'Cuautinchán', 'Cuautlancingo', 'Cuayuca de Andrade', 'Cuetzalan del Progreso', 'Cuyoaco', 'Chicahuaxtla', 'Chietla', 'Chignahuapan', 'Chignautla', 'Chila', 'Chila de la Sal', 'Chilchotla', 'Chinantla', 'Coatepec', 'Coatzingo', 'Cohetzala', 'Cohuecan', 'Coronango', 'Coxcatlán', 'Coyoaco', 'Cuapiaxtla de Madero', 'Cuautempan', 'Cuautinchán', 'Cuautlancingo', 'Cuayuca de Andrade', 'Cuetzalan del Progreso', 'Cuyoaco', 'Domingo Arenas', 'Eloxochitlán', 'Epatlán', 'Esperanza', 'Francisco Z. Mena', 'General Felipe Ángeles', 'Guadalupe', 'Guadalupe Victoria', 'Hermenegildo Galeana', 'Honey', 'Huehuetla', 'Huehuetlán el Chico', 'Huejotzingo', 'Hueyapan', 'Hueytamalco', 'Hueyatlaco', 'Huixcolotla', 'Huitziltepec', 'Atlequizayan', 'Ignacio Allende', 'Ixtacamaxtitlán', 'Ixtepec', 'Izúcar de Matamoros', 'Jalpan', 'Jolalpan', 'Jonotla', 'Jopala', 'Juan C. Bonilla', 'Juan Galindo', 'Juan N. Méndez', 'La Magdalena Tlatlauquitepec', 'Libres', 'Los Reyes de Juárez', 'Mazapiltepec de Juárez', 'Mixtla', 'Molcaxac', 'Naupan', 'Nauzontla', 'Nealtican', 'Nicolás Bravo', 'Nopalucan', 'Ocotepec', 'Ocoyucan', 'Olinalá', 'Oriental', 'Pahuatlán', 'Palmar de Bravo', 'Pantepec', 'Petlalcingo', 'Piaxtla', 'Puebla', 'Quecholac', 'Quimixtlán', 'Rafael Lara Grajales', 'San Andrés Cholula', 'San Antonio Cañada', 'San Felipe Teotlalcingo', 'San Gabriel Chilac', 'San Gregorio Atzompa', 'San Jerónimo Xayacatlán', 'San José Chiapa', 'San José Miahuatlán', 'San Juan Atzompa', 'San Martín Texmelucan', 'San Martín Totoltepec', 'San Matías Tlalancaleca', 'San Miguel Ixitlán', 'San Miguel Xoxtla', 'San Nicolás Buenos Aires', 'San Nicolás de los Ranchos', 'San Pablo Anicano', 'San Pedro Cholula', 'San Salvador el Seco', 'San Salvador el Verde', 'San Salvador Huixcolotla', 'San Sebastián Tlacotepec', 'Santa Catarina Tlaltempan', 'Santa Inés Ahuatempan', 'Santa Rita Tlahuapan', 'Santiago Miahuatlán', 'Santo Tomás Hueyotlipan', 'Soltepec', 'Tecali de Herrera', 'Tecamachalco', 'Tecomatlán', 'Tehuacán', 'Tehuitzingo', 'Tenampulco', 'Teopantlán', 'Teotlalco', 'Tepanco de López', 'Tepango de Rodríguez', 'Tepatlaxco de Hidalgo', 'Tepeaca', 'Tepeojuma', 'Tepetzintla', 'Tepexco', 'Tepexi de Rodríguez', 'Tepeyahualco', 'Tepeyahualco de Cuauhtémoc', 'Tetela de Ocampo', 'Teteles de Ávila Castillo', 'Tlacotepec de Benito Juárez', 'Tlacuilotepec', 'Tlahuapan', 'Tlaltenango', 'Tlanepantla', 'Tlaola', 'Tlapacoya', 'Tlapanalá', 'Tlatlauquitepec', 'Tlaxco', 'Tochimilco', 'Tochtepec', 'Totoltepec de Guerrero', 'Tulcingo', 'Tuzamapan de Galeana', 'Tzicatlacoyan', 'Vicente Guerrero', 'Xayacatlán de Bravo', 'Xicotepec', ' '],
+            'queretaro': ['Amealco de Bonfil', 'Pinal de Amoles', 'Arroyo Seco', 'Cadereyta de Montes', 'Colón', 'Corregidora', 'Ezequiel Montes', 'Huimilpan', 'Jalpan de Serra', 'Landa de Matamoros', 'El Marqués', 'Pedro Escobedo', 'Peñamiller', 'Querétaro', 'San Joaquín', 'San Juan del Río', 'Tequisquiapan', 'Tolimán'],
+            'quintana-roo': ['Benito Juárez', 'Cozumel', 'Felipe Carrillo Puerto', 'Isla Mujeres', 'Othón P. Blanco', 'Solidaridad', 'Tulum', 'Bacalar', 'Lázaro Cárdenas', 'Puerto Morelos', 'José María Morelos'],
+            'san-luis-potosi': ['Ahualulco', 'Alaquines', 'Aquismón', 'Armadillo de los Infante', 'Cárdenas', 'Catorce', 'Cedral', 'Cerritos', 'Cerro de San Pedro', 'Ciudad Fernández', 'Tancanhuitz', 'Ciudad Valles', 'Coxcatlán', 'Charcas', 'Ébano', 'Guadalcázar', 'Huehuetlán', 'Jalisco', 'Lagunillas', 'Matehuala', 'Mexquitic de Carmona', 'Moctezuma', 'Rayón', 'Rioverde', 'Salinas', 'San Antonio', 'San Ciro de Acosta', 'San Luis Potosí', 'San Martín Chalchicuautla', 'San Nicolás Tolentino', 'Santa Catarina', 'Santa María del Río', 'Santo Domingo', 'Soledad de Graciano Sánchez', 'Tamazunchale', 'Tampacán', 'Tampamolón Corona', 'Tamuin', 'Tanlajás', 'Tanquián de Escobedo', 'Tierra Nueva', 'Vanegas', 'Venado', 'Villa de Arriaga', 'Villa de Guadalupe', 'Villa de la Paz', 'Villa de Ramos', 'Villa de Reyes', 'Villa Hidalgo', 'Villa Juárez', 'Xilitla', 'Zaragoza'],
+            'sinaloa': ['Ahome', 'Angostura', 'Badiraguato', 'Concordia', 'Cosalá', 'Culiacán', 'Choix', 'Elota', 'Escuinapa', 'El Fuerte', 'Guasave', 'Mazatlán', 'Mocorito', 'Navolato', 'Rosario', 'Salvador Alvarado', 'San Ignacio', 'Sinaloa'],
+            'sonora': ['Aconchi', 'Agua Prieta', 'Alamos', 'Altar', 'Arivechi', 'Arizpe', 'Atil', 'Bacadéhuachi', 'Bacanora', 'Bacerac', 'Bacoachi', 'Bácum', 'Banámichi', 'Baviácora', 'Bavispe', 'Caborca', 'Cajeme', 'Cananea', 'Carbó', 'La Colorada', 'Pitiquito', 'Puerto Peñasco', 'Rayón', 'Rosario', 'Sahuaripa', 'San Felipe de Jesús', 'San Javier', 'San Luis Río Colorado', 'San Miguel de Horcasitas', 'San Pedro de la Cueva', 'Santa Ana', 'Santa Cruz', 'Sáric', 'Soyopa', 'Suaqui Grande', 'Tepache', 'Trincheras', 'Tubutama', 'Ures', 'Villa Hidalgo', 'Villa Pesqueira', 'Yécora'],
+            'tabasco': ['Balancán', 'Cárdenas', 'Centla', 'Centro', 'Comalcalco', 'Cunduacán', 'Emiliano Zapata', 'Huimanguillo', 'Jalapa', 'Jalpa de Méndez', 'Jonuta', 'Macuspana', 'Nacajuca', 'Paraíso', 'Tacotalpa', 'Teapa', 'Tenosique'],
+            'tamaulipas': ['Abasolo', 'Aldama', 'Altamira', 'Antiguo Morelos', 'Burgos', 'Bustamante', 'Camargo', 'Casas', 'Ciudad Madero', 'Cruillas', 'Gómez Farías', 'González', 'Guémez', 'Guerrero', 'Gustavo Díaz Ordaz', 'Hidalgo', ' '],
+            'tlaxcala': ['Acuamanala de Miguel Hidalgo', 'Altzayanca', 'Amaxac de Guerrero', 'Apetatitlán de Antonio Carvajal', 'Apizaco', 'Atlangatepec', 'Atzayanca', 'Calpulalpan', 'Contla de Juan Cuamatzi', 'Cuapiaxtla', 'Cuaxomulco', 'Chiautempan', 'Chiauhtempan', 'Españita', 'Huamantla', 'Hueyotlipan', 'Ixtacuixtla de Mariano Matamoros', 'Ixtenco', 'La Magdalena Tlaltelulco', 'Lardizábal', 'Mazatecochco de José María Morelos', 'Muñoz de Domingo Arenas', 'Nanacamilpa de Mariano Arista', 'Nativitas', 'Panotla', 'Papalotla de Xicohténcatl', 'San Damián Texoloc', 'San Francisco Tetlanohcan', 'San Jerónimo Zacualpan', 'San José Teacalco', 'San Juan Huactzinco', 'San Lorenzo Axocomanitla', 'San Lucas Tecopilco', 'San Pablo del Monte', 'Sanctorum de Lázaro Cárdenas', 'Santa Ana Nopalucan', 'Santa Apolonia Teacalco', 'Santa Catarina Ayometla', 'Santa Cruz Tlaxcala', 'Santa Cruz Tlaxcaltongo', 'Tenancingo', 'Teolocholco', 'Tepeyanco', 'Terrenate', 'Tetla de la Solidaridad', 'Tetlatlahuca', 'Tlaxcala', 'Tlaxco', 'Tocatlan', 'Totolac', 'Tzompantepec', 'Xalatlaco', 'Xaltocan', 'Xicohtzingo', 'Yauhquemehcan', 'Zacatelco', 'Ziltlaltépec de Trinidad Sánchez Santos'],
+            'veracruz': ['Acajete', 'Acatlán', 'Acayucan', 'Actopan', 'Acula', 'Acultzingo', 'Agua Dulce', 'Álamo Temapache', 'Alpatláhuac', 'Alto Lucero de Gutiérrez Barrios', 'Altotonga', 'Alvarado', 'Amatitlán', 'Amatlán de los Reyes', 'Angel R. Cabada', 'La Antigua', 'Apazapan', 'Aquila', 'Astacinga', 'Atlahuilco', 'Atoyac', 'Atzacan', 'Atzalan', 'Ayahualulco', 'Banderilla', 'Benito Juárez', 'Boca del Río', 'Calcahualco', 'Camerino Z. Mendoza', 'Carlos A. Carrillo', 'Carrillo Puerto', 'Castillo de Teayo', 'Catemaco', 'Cazones de Herrera', 'Coacoatzintla', 'Coahuitlán', 'Coatepec', 'Coatzacoalcos', 'Coatzintla', 'Coetzala', 'Colipa', 'Comapa', 'Córdoba', 'Cosamaloapan de Carpio', 'Cosautlán de Carvajal', 'Coscomatepec', 'Cosoleacaque', 'Cotaxtla', 'Coxquihui', 'Coyutla', 'Cuichapa', 'Cuitláhuac', 'Chacaltianguis', 'Chalma', 'Chiconamel', 'Chiconquiaco', 'Chicontepec', 'Chinameca', 'Chinampa de Gorostiza', 'Las Choapas', 'Chocamán', 'Chontla', 'Chumatlán', 'Díaz Mirón', 'Emiliano Zapata', 'Espinal', 'Filomeno Mata', 'Fortín', 'Gutiérrez Zamora', 'Hidalgotitlán', 'Huatusco', 'Huayacocotla', 'Hueyapan de Ocampo', 'Huiloapan de Cuauhtémoc', 'Ignacio de la Llave', 'Ilamatlán', 'Isla', 'Ixcatepec', 'Ixhuacán de los Reyes', 'Ixhuatlán de Madero', 'Ixhuatlán del Café', 'Ixhuatlán del Sureste', 'Ixmatlahuacan', 'Ixtaczoquitlán', 'Jalacingo', 'Xalapa', 'Jilotepec', 'Juan Rodríguez Clara', 'Juchique de Ferrer', 'Landero y Coss', 'Lerdo de Tejada', 'Maltrata', 'Manlio Fabio Altamirano', 'Mariano Escobedo', 'Martínez de la Torre', 'Mecatlán', 'Moloacán', 'Naolinco', 'Naranjal', 'Nautla', 'Nogales', 'Oluta', 'Omealca', 'Orizaba', 'Otatitlán', 'Pajapan', 'Pánuco', 'Papantla', 'Paso de Ovejas', 'Paso del Macho', 'Perote', 'Platón Sánchez', 'Playa Vicente', 'Poza Rica de Hidalgo', 'Las Minas', 'Pueblo Viejo', 'Puente Nacional', 'Rafael Delgado', 'Rafael Lucio', 'Los Reyes', 'Río Blanco', 'Saltabarranca', 'San Andrés Tuxtla', 'San Juan Evangelista', 'Santiago Sochiapan', 'Santiago Tuxtla', 'Sayula de Alemán', 'Soconusco', 'Soledad de Doblado', 'Soteapan', 'Tamalín', 'Tamiahua', 'Tampico Alto', 'Tantima', 'Tantoyuca', 'Tatatila', 'Castillo de Teayo', 'Tehuipango', 'Tempoal', 'Tenampa', 'Tenochtitlán', 'Teocelo', 'Tepatlaxco', 'Tepetlán', 'Tepetzintla', 'Tequila', 'Texcatepec', 'Texhuacán', 'Texistepec', 'Tezonapa', 'Tierra Blanca', 'Tihuatlán', 'Tlacojalpan', 'Tlacolulan', 'Tlacotalpan', 'Tlacotepec de Mejía', 'Tlachichilco', 'Tlalixcoyan', 'Tlalnelhuayocan', 'Tlilapan', 'Tomatlán', 'Tonayán', 'Totutla', 'Tuxpan', 'Tuxtilla', 'Ursulo Galván', 'Vega de Alatorre', 'Veracruz', 'Villa Aldama', 'Xoxocotla', 'Yanga', 'Yecuatla', 'Zacualpan', 'Zaragoza', 'Zentla', 'Zongolica', 'Zontecomatlán de López y Fuentes', 'Zozocolco de Hidalgo'],
+            'yucatan': ['Abalá', 'Acanceh', 'Akil', 'Baca', 'Bokobá', 'Buctzotz', 'Cacalchén', 'Calotmul', 'Cansahcab', 'Cantamayec', 'Celestún', 'Cenotillo', 'Conkal', 'Cuncunul', 'Cuzamá', 'Chacsinkín', 'Chankom', 'Chapab', 'Chemax', 'Chicxulub Pueblo', 'Chichimilá', 'Chikindzonot', 'Chocholá', 'Chumayel', 'Dzitás', 'Dzoncauich', 'Espita', 'Halachó', 'Hocabá', 'Hoctún', 'Homún', 'Huhí', 'Hunucmá', 'Ixil', 'Izamal', 'Kanasín', 'Kantunil', 'Kaua', 'Kinchil', 'Kopomá', 'Mama', 'Maní', 'Maxcanú', 'Mayapán', 'Mérida', 'Mocochá', 'Motul', 'Muna', 'Muxupip', 'Opichén', 'Oxkutzcab', 'Panabá', 'Peto', 'Progreso', 'Quintana Roo', 'Río Lagartos', 'Sacalum', 'Samahil', 'Sanahcat', 'San Felipe', 'Santa Elena', 'Santa María Dzidzilché', 'Sinanché', 'Sotuta', 'Sucilá', 'Sudzal', 'Sumá', 'Tahdziú', 'Tahmek', 'Teabo', 'Tecoh', 'Tekal de Venegas', 'Tekantó', 'Tekax', 'Tekit', 'Tekom', 'Telchac Pueblo', 'Telchac Puerto', 'Temax', 'Temozón', 'Tepakán', 'Tetiz', 'Teya', 'Ticul', 'Timucuy', 'Tinum', 'Tixcacalcupul', 'Tixkokob', 'Tixméhuac', 'Tixpéhual', 'Tizimín', 'Tunkás', 'Tzucacab', 'Uayma', 'Ucú', 'Umán', 'Valladolid', 'Xocchel', 'Yaxcabá', 'Yaxkukul', 'Yobaín'],
+            'zacatecas': ['Apozol', 'Apulco', 'Atolinga', 'Benito Juárez', 'Calera', 'Cañitas de Felipe Pescador', 'Concepción del Oro', 'Cuauhtémoc', 'Chalchihuites', 'Fresnillo', 'Genaro Codina', 'General Enrique Estrada', 'General Francisco R. Murguía', 'El Plateado de Joaquín Amaro', 'General Pánfilo Natera', 'Guadalupe', 'Huanusco', 'Jalpa', 'Jerez', 'Jiménez del Teul', 'Juan Aldama', 'Juchipila', 'Loreto', 'Luis Moya', 'Mazapil', 'Melchor Ocampo', 'Mezquital del Oro', 'Miguel Auza', 'Momax', 'Monte Escobedo', 'Morelos', 'Nieves', 'Ojo Caliente', 'Pánuco', 'Pinos', 'Río Grande', 'Sain Alto', 'El Salvador', 'Sombrerete', 'Susticacán', 'Tabasco', 'Tepechitlán', 'Tepetongo', 'Teúl de González Ortega', 'Tlaltenango de Sánchez Román', 'Valparaíso', 'Vetagrande', 'Villa de Cos', 'Villa García', 'Villa González Ortega', 'Villa Hidalgo', 'Villanueva', 'Zacatecas', 'Trancoso', 'Santa María de la Paz', 'El Salvador']
+        };
+
+        // Irradiación solar promedio mensual en kWh/m²/día para Mazatlán, Sinaloa
+        const solarIrradiationMazatlan = {
+            'enero': 4.1,
+            'febrero': 4.8,
+            'marzo': 6.2,
+            'abril': 6.5,
+            'mayo': 7.0,
+            'junio': 6.9,
+            'julio': 5.6,
+            'agosto': 5.4,
+            'septiembre': 5.1,
+            'octubre': 5.1,
+            'noviembre': 4.4,
+            'diciembre': 3.5
+        };
+
+        // Diccionario para almacenar la irradiación solar por municipio
+        const solarIrradiationByMunicipality = {
+            'sinaloa': {
+                'mazatlan': solarIrradiationMazatlan,
+                'culiacan': { // Ejemplo con datos ficticios para Culiacán
+                    'enero': 4.2, 'febrero': 5.0, 'marzo': 6.4, 'abril': 6.9,
+                    'mayo': 7.4, 'junio': 7.3, 'julio': 5.8, 'agosto': 5.7,
+                    'septiembre': 5.4, 'octubre': 5.3, 'noviembre': 4.4, 'diciembre': 3.7
+                },
+                'ahome': { // Ejemplo con datos ficticios para Ahome/Los Mochis
+                    'enero': 4.1, 'febrero': 4.9, 'marzo': 6.2, 'abril': 6.9,
+                    'mayo': 7.4, 'junio': 7.5, 'julio': 6.2, 'agosto': 5.9,
+                    'septiembre': 5.7, 'octubre': 5.3, 'noviembre': 4.4, 'diciembre': 3.7
+                }
+            }
+        };
+
+        // Configuración de paneles solares
+        const panelWattage = 550; // Watts por panel
+        const panelEfficiency = 0.80; // Eficiencia del sistema
+        const spacePerPanelM2 = 2.5; // Espacio requerido por panel en m²
+        const costPerWattUSD = 1.0; // Costo por Watt instalado en USD
+        const exchangeRateMXNtoUSD = 18.0; // Tipo de cambio
+
+        // Datos de tarifas CFE (ejemplo simplificado)
+        const cfeTariffs = {
+            '1': { base: 0.85, intermedia: 1.05, excedente: 3.00, DAC: 5.50 },
+            '1A': { base: 0.90, intermedia: 1.10, excedente: 3.10, DAC: 5.60 },
+            '1B': { base: 0.95, intermedia: 1.15, excedente: 3.20, DAC: 5.70 },
+            '1C': { base: 1.00, intermedia: 1.20, excedente: 3.30, DAC: 5.80 },
+            '1D': { base: 1.05, intermedia: 1.25, excedente: 3.40, DAC: 5.90 },
+            '1E': { base: 1.10, intermedia: 1.30, excedente: 3.50, DAC: 6.00 },
+            '1F': { base: 1.15, intermedia: 1.35, excedente: 3.60, DAC: 6.10 },
+            'DAC': { base: 6.20, DAC: 6.20 }
+        };
+
+        // Umbrales de consumo para tarifas por bloque
+        const tariffThresholds = {
+            '1C': { basico: 150, intermedio: 300 },
+            '1F': { basico: 300, intermedio: 600 },
+            'DAC': { basico: 0, intermedio: 0 }
+        };
+
+        // Elementos del DOM
+        const stateSelect = document.getElementById('state');
+        const municipalitySelect = document.getElementById('municipality');
+        const tariffSelect = document.getElementById('tariff');
+        const billingPeriodSelect = document.getElementById('billing-period');
+        const consumptionInputsContainer = document.getElementById('consumption-inputs-container');
+        const calculateBtn = document.getElementById('calculate-btn');
+        const annualConsumptionElem = document.getElementById('annual-consumption');
+        const solarGenerationElem = document.getElementById('solar-generation');
+        const costWithoutElem = document.getElementById('cost-without');
+        const annualSavingsElem = document.getElementById('annual-savings');
+        const panelRecommendationText = document.getElementById('panel-recommendation-text');
+        const panelCountElem = document.getElementById('panel-count');
+        const systemSizeElem = document.getElementById('system-size');
+        const spaceRequiredElem = document.getElementById('space-required');
+        const systemCostElem = document.getElementById('system-cost');
+        const paybackPeriodElem = document.getElementById('payback-period');
+        const dailyProductionElem = document.getElementById('daily-production');
+        const solarCoverageElem = document.getElementById('solar-coverage');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const currencyBtns = document.querySelectorAll('.currency-btn');
+
+        // Variables de estado
+        let currentCurrency = 'mxn';
+        let currentBillingPeriod = 'monthly';
+        let consumptionChart = null;
+        let savingsChart = null;
+
+        // Función para crear los inputs de consumo según la periodicidad
+        function createConsumptionInputs() {
+            consumptionInputsContainer.innerHTML = '';
+
+            const months = [
+                { id: 'enero', name: 'Enero' },
+                { id: 'febrero', name: 'Febrero' },
+                { id: 'marzo', name: 'Marzo' },
+                { id: 'abril', name: 'Abril' },
+                { id: 'mayo', name: 'Mayo' },
+                { id: 'junio', name: 'Junio' },
+                { id: 'julio', name: 'Julio' },
+                { id: 'agosto', name: 'Agosto' },
+                { id: 'septiembre', name: 'Septiembre' },
+                { id: 'octubre', name: 'Octubre' },
+                { id: 'noviembre', name: 'Noviembre' },
+                { id: 'diciembre', name: 'Diciembre' }
+            ];
+
+            const bimesters = [
+                { id: 'bim1', name: 'Enero-Febrero', months: ['enero', 'febrero'] },
+                { id: 'bim2', name: 'Marzo-Abril', months: ['marzo', 'abril'] },
+                { id: 'bim3', name: 'Mayo-Junio', months: ['mayo', 'junio'] },
+                { id: 'bim4', name: 'Julio-Agosto', months: ['julio', 'agosto'] },
+                { id: 'bim5', name: 'Septiembre-Octubre', months: ['septiembre', 'octubre'] },
+                { id: 'bim6', name: 'Noviembre-Diciembre', months: ['noviembre', 'diciembre'] }
+            ];
+
+            const inputsToCreate = currentBillingPeriod === 'monthly' ? months : bimesters;
+
+            const grid = document.createElement('div');
+            grid.className = 'consumption-grid';
+
+            inputsToCreate.forEach(item => {
+                const inputDiv = document.createElement('div');
+                inputDiv.className = 'consumption-input';
+
+                const label = document.createElement('label');
+                label.htmlFor = item.id;
+                label.textContent = item.name;
+
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.id = item.id;
+                input.min = '0';
+                input.step = '1';
+                input.placeholder = '0';
+                input.value = currentBillingPeriod === 'monthly' ? 
+                    (item.id === 'enero' ? '350' : 
+                     item.id === 'febrero' ? '320' : 
+                     item.id === 'marzo' ? '300' : 
+                     item.id === 'abril' ? '280' : 
+                     item.id === 'mayo' ? '310' : 
+                     item.id === 'junio' ? '380' : 
+                     item.id === 'julio' ? '420' : 
+                     item.id === 'agosto' ? '450' : 
+                     item.id === 'septiembre' ? '400' : 
+                     item.id === 'octubre' ? '350' : 
+                     item.id === 'noviembre' ? '320' : '340') : '0';
+
+                input.addEventListener('input', updateResults);
+
+                inputDiv.appendChild(label);
+                inputDiv.appendChild(input);
+                grid.appendChild(inputDiv);
+            });
+
+            consumptionInputsContainer.appendChild(grid);
+        }
+
+        // Función para obtener el consumo mensual
+        function getMonthlyConsumption() {
+            const monthlyConsumption = {};
+            
+            if (currentBillingPeriod === 'monthly') {
+                const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 
+                               'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+                months.forEach(month => {
+                    monthlyConsumption[month] = parseFloat(document.getElementById(month).value) || 0;
+                });
+            } else {
+                // Para facturación bimestral, distribuimos el consumo equitativamente entre los dos meses
+                const bimesters = [
+                    { id: 'bim1', months: ['enero', 'febrero'] },
+                    { id: 'bim2', months: ['marzo', 'abril'] },
+                    { id: 'bim3', months: ['mayo', 'junio'] },
+                    { id: 'bim4', months: ['julio', 'agosto'] },
+                    { id: 'bim5', months: ['septiembre', 'octubre'] },
+                    { id: 'bim6', months: ['noviembre', 'diciembre'] }
+                ];
+                
+                bimesters.forEach(bim => {
+                    const bimConsumption = parseFloat(document.getElementById(bim.id).value) || 0;
+                    const monthlyConsumptionValue = bimConsumption / 2;
+                    
+                    bim.months.forEach(month => {
+                        monthlyConsumption[month] = monthlyConsumptionValue;
+                    });
+                });
+            }
+            
+            return monthlyConsumption;
+        }
+
+        // Función para calcular el consumo anual
+        function calculateAnnualConsumption() {
+            const monthlyConsumption = getMonthlyConsumption();
+            return Object.values(monthlyConsumption).reduce((sum, value) => sum + value, 0);
+        }
+
+        // Función para obtener la irradiación solar del municipio seleccionado
+        function getSolarIrradiationForMunicipality() {
+            const selectedState = stateSelect.value;
+            const selectedMunicipality = municipalitySelect.value;
+
+            if (selectedState && selectedMunicipality && 
+                solarIrradiationByMunicipality[selectedState] && 
+                solarIrradiationByMunicipality[selectedState][selectedMunicipality]) {
+                return solarIrradiationByMunicipality[selectedState][selectedMunicipality];
+            }
+            
+            // Si no se encuentra, usar Mazatlán como fallback
+            return solarIrradiationMazatlan;
+        }
+
+        // Función mejorada para calcular el tamaño del sistema en kW
+        function calculateSystemSizeKW(annualConsumption) {
+            // Nuevo cálculo: consumo anual dividido entre 360 y luego entre 5
+            const systemSizeKW = (annualConsumption / 360) / 5;
+            
+            // Asegurarnos de que el tamaño mínimo sea de 1.5 kW para sistemas residenciales
+            return Math.max(systemSizeKW, 1.5);
+        }
+
+        // Función para calcular el número de paneles
+        function calculatePanelCount(systemSizeKW) {
+            const systemSizeWatts = systemSizeKW * 1000;
+            let numPanels = Math.ceil(systemSizeWatts / panelWattage);
+            
+            // Ajustar a múltiplos de 2 para optimizar inversores
+            if (numPanels % 2 !== 0) {
+                numPanels += 1;
+            }
+            
+            // Mínimo de 4 paneles para sistemas residenciales
+            return Math.max(numPanels, 4);
+        }
+
+        // Función para calcular la generación solar mensual
+        function calculateMonthlySolarGeneration(systemSizeKW) {
+            const monthlySolarGen = {};
+            const irradiation = getSolarIrradiationForMunicipality();
+            const monthsOrder = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 
+                                'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+            
+            monthsOrder.forEach(month => {
+                const daysInMonth = new Date(2024, monthsOrder.indexOf(month) + 1, 0).getDate();
+                const dailyGeneration = systemSizeKW * irradiation[month] * panelEfficiency;
+                monthlySolarGen[month] = dailyGeneration * daysInMonth;
+            });
+            
+            return monthlySolarGen;
+        }
+
+        // Función para calcular el costo mensual sin paneles
+        function calculateMonthlyCost(consumption, tariff) {
+            const tariffRates = cfeTariffs[tariff];
+            let monthCost = 0;
+
+            if (tariff === 'DAC') {
+                monthCost = consumption * tariffRates.DAC;
+            } else {
+                const thresholds = tariffThresholds[tariff] || { basico: 150, intermedio: 300 };
+                if (consumption <= thresholds.basico) {
+                    monthCost = consumption * tariffRates.base;
+                } else if (consumption <= thresholds.intermedio) {
+                    monthCost = (thresholds.basico * tariffRates.base) +
+                                ((consumption - thresholds.basico) * tariffRates.intermedia);
+                } else {
+                    monthCost = (thresholds.basico * tariffRates.base) +
+                                ((thresholds.intermedio - thresholds.basico) * tariffRates.intermedia) +
+                                ((consumption - thresholds.intermedio) * tariffRates.excedente);
+                }
+            }
+            return monthCost;
+        }
+
+        // Función para calcular el costo anual sin paneles
+        function calculateCostWithoutPanels(annualConsumption, selectedTariff) {
+            const monthlyConsumption = getMonthlyConsumption();
+            let totalCost = 0;
+
+            for (const month in monthlyConsumption) {
+                totalCost += calculateMonthlyCost(monthlyConsumption[month], selectedTariff);
+            }
+            
+            return totalCost;
+        }
+
+        // Función para calcular el ahorro mensual
+        function calculateMonthlySavings(monthlyConsumption, monthlySolarGen, tariff) {
+            const monthlySavings = {};
+            const monthsOrder = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 
+                                'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+            
+            monthsOrder.forEach(month => {
+                const consumption = monthlyConsumption[month];
+                const generation = monthlySolarGen[month];
+                
+                // Energía que aún necesitamos de la red (no puede ser negativa)
+                const gridEnergy = Math.max(0, consumption - generation);
+                
+                // Costo sin paneles
+                const costWithout = calculateMonthlyCost(consumption, tariff);
+                
+                // Costo con paneles
+                const costWith = calculateMonthlyCost(gridEnergy, tariff);
+                
+                // Ahorro = Costo sin paneles - Costo con paneles
+                monthlySavings[month] = costWithout - costWith;
+            });
+            
+            return monthlySavings;
+        }
+
+        // Función para calcular el período de recuperación
+        function calculatePaybackPeriod(systemCost, annualSavings) {
+            if (annualSavings <= 0) return 'N/A';
+            return (systemCost / annualSavings).toFixed(1);
+        }
+
+        // Función para formatear moneda
+        function formatCurrency(value, currency) {
+            if (currency === 'mxn') {
+                return `$${value.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")} MXN`;
+            } else {
+                return `U$D ${value.toFixed(2)}`;
+            }
+        }
+
+        // Función para convertir moneda
+        function convertCurrency(value, fromCurrency, toCurrency) {
+            if (fromCurrency === toCurrency) return value;
+            if (fromCurrency === 'mxn' && toCurrency === 'usd') {
+                return value / exchangeRateMXNtoUSD;
+            }
+            if (fromCurrency === 'usd' && toCurrency === 'mxn') {
+                return value * exchangeRateMXNtoUSD;
+            }
+            return value;
+        }
+
+        // Función para actualizar las gráficas
+        function updateCharts(monthlyConsumption, monthlySolarGen, monthlySavings) {
+            const monthsOrder = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 
+                                'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+            const monthlyConsumptionData = monthsOrder.map(month => monthlyConsumption[month]);
+            const monthlySolarGenData = monthsOrder.map(month => monthlySolarGen[month]);
+            const monthlySavingsData = monthsOrder.map(month => convertCurrency(monthlySavings[month], 'mxn', currentCurrency));
+
+            // Gráfica de Consumo vs Generación
+            if (consumptionChart) consumptionChart.destroy();
+            consumptionChart = new Chart(document.getElementById('consumptionChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                    datasets: [
+                        {
+                            label: 'Consumo kWh',
+                            data: monthlyConsumptionData,
+                            backgroundColor: 'rgba(231, 76, 60, 0.7)',
+                            borderColor: 'rgba(231, 76, 60, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Generación Solar',
+                            data: monthlySolarGenData,
+                            backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                            borderColor: 'rgba(52, 152, 219, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'kWh' }
+                        },
+                        x: { title: { display: true, text: 'Mes' } }
+                    }
+                }
+            });
+
+            // Gráfica de Ahorro Mensual
+            if (savingsChart) savingsChart.destroy();
+            savingsChart = new Chart(document.getElementById('savingsChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                    datasets: [{
+                        label: `Ahorro Mensual (${currentCurrency.toUpperCase()})`,
+                        data: monthlySavingsData,
+                        backgroundColor: 'rgba(39, 174, 96, 0.7)',
+                        borderColor: 'rgba(39, 174, 96, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: `Ahorro (${currentCurrency.toUpperCase()})` }
+                        },
+                        x: { title: { display: true, text: 'Mes' } }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${formatCurrency(context.raw, currentCurrency)}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Función para actualizar todos los resultados
+        function updateResults() {
+            const monthlyConsumption = getMonthlyConsumption();
+            const annualConsumption = calculateAnnualConsumption();
+            annualConsumptionElem.textContent = `${annualConsumption.toFixed(0)} kWh`;
+
+            const selectedTariff = tariffSelect.value;
+            const costWithoutPanels = calculateCostWithoutPanels(annualConsumption, selectedTariff);
+            costWithoutElem.textContent = formatCurrency(convertCurrency(costWithoutPanels, 'mxn', currentCurrency), currentCurrency);
+
+            // Cálculo mejorado del sistema
+            const systemSizeKW = calculateSystemSizeKW(annualConsumption);
+            const numPanels = calculatePanelCount(systemSizeKW);
+            const actualSystemSizeKW = (numPanels * panelWattage) / 1000; // Tamaño real basado en paneles enteros
+            
+            const monthlySolarGen = calculateMonthlySolarGeneration(actualSystemSizeKW);
+            const totalSolarGeneration = Object.values(monthlySolarGen).reduce((sum, val) => sum + val, 0);
+            solarGenerationElem.textContent = `${totalSolarGeneration.toFixed(0)} kWh`;
+
+            // Cálculo de ahorro más preciso
+            const monthlySavings = calculateMonthlySavings(monthlyConsumption, monthlySolarGen, selectedTariff);
+            const annualSavings = Object.values(monthlySavings).reduce((sum, val) => sum + val, 0);
+            annualSavingsElem.textContent = formatCurrency(convertCurrency(annualSavings, 'mxn', currentCurrency), currentCurrency);
+
+            // Costo estimado del sistema
+            const systemCostUSD = actualSystemSizeKW * 1000 * costPerWattUSD;
+            const systemCostMXN = systemCostUSD * exchangeRateMXNtoUSD;
+            systemCostElem.textContent = formatCurrency(convertCurrency(systemCostMXN, 'mxn', currentCurrency), currentCurrency);
+
+            const payback = calculatePaybackPeriod(systemCostMXN, annualSavings);
+
+            // Recomendaciones mejoradas
+            panelRecommendationText.textContent = `Para tu consumo de ${annualConsumption.toFixed(0)} kWh/año, recomendamos un sistema de ${actualSystemSizeKW.toFixed(2)} kW.`;
+            panelCountElem.textContent = `Paneles: ${numPanels} de ${panelWattage}W cada uno`;
+            systemSizeElem.textContent = `Tamaño del sistema: ${actualSystemSizeKW.toFixed(2)} kW`;
+            spaceRequiredElem.textContent = `Espacio requerido: ${(numPanels * spacePerPanelM2).toFixed(1)} m² (${(numPanels * spacePerPanelM2 * 10.764).toFixed(1)} ft²)`;
+            paybackPeriodElem.textContent = `Periodo de recuperación: ${payback} años`;
+            dailyProductionElem.textContent = `${(totalSolarGeneration / 365).toFixed(1)} kWh/día (promedio anual)`;
+
+            const solarCoverage = (totalSolarGeneration / annualConsumption) * 100;
+            solarCoverageElem.textContent = `${solarCoverage.toFixed(1)}% (${(annualConsumption - totalSolarGeneration).toFixed(0)} kWh anuales de la red)`;
+
+            updateCharts(monthlyConsumption, monthlySolarGen, monthlySavings);
+        }
+
+        // Función para poblar los municipios según el estado seleccionado
+        function populateMunicipalities() {
+            const selectedState = stateSelect.value;
+            municipalitySelect.innerHTML = '<option value="">Selecciona un municipio</option>';
+            municipalitySelect.disabled = true;
+
+            if (selectedState && municipalitiesByState[selectedState]) {
+                const municipalities = municipalitiesByState[selectedState];
+                municipalities.forEach(municipality => {
+                    const option = document.createElement('option');
+                    option.value = municipality.toLowerCase().replace(/ /g, '-');
+                    option.textContent = municipality;
+                    municipalitySelect.appendChild(option);
+                });
+                municipalitySelect.disabled = false;
+            }
+            // Seleccionar Mazatlán por defecto si el estado es Sinaloa
+            if (selectedState === 'sinaloa') {
+                municipalitySelect.value = 'mazatlan';
+            }
+        }
+
+        // Event Listeners
+        stateSelect.addEventListener('change', populateMunicipalities);
+        municipalitySelect.addEventListener('change', updateResults);
+        tariffSelect.addEventListener('change', updateResults);
+        billingPeriodSelect.addEventListener('change', function() {
+            currentBillingPeriod = this.value;
+            createConsumptionInputs();
+            updateResults();
+        });
+
+        calculateBtn.addEventListener('click', updateResults);
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(tc => tc.classList.remove('active'));
+
+                tab.classList.add('active');
+                document.getElementById(`${tab.dataset.tab}-tab`).classList.add('active');
+            });
+        });
+
+        currencyBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                currencyBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentCurrency = btn.dataset.currency;
+                updateResults();
+            });
+        });
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', () => {
+            populateMunicipalities();
+            createConsumptionInputs();
+            updateResults();
+        });
+    </script>
+</body>
+</html>
